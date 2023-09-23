@@ -41,6 +41,7 @@ import {
   SuccessConvertResponse,
 } from "@/lib/exchange-schemas";
 import { convertCurrencies, getCurrencySymbols } from "@/lib/utils";
+import ResultCard from "./ResultCard";
 
 export default function CurrencyForm({
   initialData,
@@ -48,10 +49,11 @@ export default function CurrencyForm({
   initialData: Currency[];
 }) {
   useEffect(() => {
-    setResult(undefined);
+    setConversionResult(undefined);
   }, []);
 
-  const [result, setResult] = useState<SuccessConvertResponse>();
+  const [conversionResult, setConversionResult] =
+    useState<SuccessConvertResponse>();
 
   const { data: currencies, isLoading } = useQuery({
     queryKey: ["currencies"],
@@ -78,7 +80,7 @@ export default function CurrencyForm({
       const convertResponse = await convertCurrencies(inputs);
 
       if (convertResponse?.success) {
-        setResult({
+        setConversionResult({
           info: convertResponse.info,
           query: convertResponse.query,
           result: convertResponse.result,
@@ -102,9 +104,7 @@ export default function CurrencyForm({
         <Card className="w-[350px]">
           <CardHeader>
             <CardTitle>Currency Converter</CardTitle>
-            <CardDescription>
-              Check live foreign currency exchange rates.
-            </CardDescription>
+            <CardDescription>Check live currency exchange.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid w-full items-center gap-4">
@@ -216,8 +216,8 @@ export default function CurrencyForm({
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
-            <Label>Result: {result?.result}</Label>
+          <CardFooter className="flex justify-between gap-4">
+            <ResultCard conversionResult={conversionResult} />
             <Button type="submit" disabled={isLoading}>
               Convert
             </Button>
