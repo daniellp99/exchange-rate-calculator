@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -23,7 +23,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -52,6 +51,7 @@ export default function CurrencyForm({
     setConversionResult(undefined);
   }, []);
 
+  const [isConverting, setIsConverting] = useState(false);
   const [conversionResult, setConversionResult] =
     useState<SuccessConvertResponse>();
 
@@ -75,26 +75,35 @@ export default function CurrencyForm({
 
   async function onSubmit(values: InputRequest) {
     try {
+      setIsConverting(true);
       const inputs = { ...values };
 
       const convertResponse = await convertCurrencies(inputs);
-
-      if (convertResponse?.success) {
-        setConversionResult({
-          info: convertResponse.info,
-          query: convertResponse.query,
-          result: convertResponse.result,
-        });
+      if (convertResponse) {
+        if (convertResponse.success) {
+          setConversionResult({
+            info: convertResponse.info,
+            query: convertResponse.query,
+            result: convertResponse.result,
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: `Convert Error-${convertResponse.error.code}`,
+            description: `${convertResponse.error.info}`,
+          });
+        }
       } else {
         toast({
           variant: "destructive",
-          title: `Convert Error-${convertResponse?.error.code}`,
-          description: `${convertResponse?.error.info}`,
+          title: "Internal Server Error",
+          description: "Please try again letter",
         });
       }
     } catch (error) {
       console.error(error);
     } finally {
+      setIsConverting(false);
     }
   }
 
@@ -120,7 +129,7 @@ export default function CurrencyForm({
                           placeholder="0"
                           type="number"
                           {...field}
-                          disabled={isLoading}
+                          disabled={isLoading || isConverting}
                         />
                       </FormControl>
                       <FormMessage />
@@ -140,15 +149,15 @@ export default function CurrencyForm({
                             field.onChange(value as any)
                           }
                           defaultValue={field.value}
-                          disabled={isLoading}
+                          disabled={isLoading || isConverting}
                         >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent asChild className="h-72">
-                            <ScrollArea>
+                          <SelectContent>
+                            <ScrollArea className="h-64 w-72">
                               {currencies?.map((currency) => {
                                 if (currency.code === fromToSelection[1]) {
                                   return null;
@@ -183,15 +192,15 @@ export default function CurrencyForm({
                             field.onChange(value as any)
                           }
                           defaultValue={field.value}
-                          disabled={isLoading}
+                          disabled={isLoading || isConverting}
                         >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent asChild className="h-72">
-                            <ScrollArea className="h-72">
+                          <SelectContent>
+                            <ScrollArea className="h-64 w-72">
                               {currencies?.map((currency) => {
                                 if (currency.code === fromToSelection[0]) {
                                   return null;
@@ -216,9 +225,9 @@ export default function CurrencyForm({
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between gap-4">
+          <CardFooter className="flex justify-between gap-3">
             <ResultCard conversionResult={conversionResult} />
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading || isConverting}>
               Convert
             </Button>
           </CardFooter>

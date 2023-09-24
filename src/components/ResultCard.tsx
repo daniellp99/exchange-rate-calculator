@@ -22,7 +22,7 @@ export default function ResultCard({
     return <Skeleton className="w-[300px] h-[110px]" />;
   const { query, result } = conversionResult;
   return (
-    <Card>
+    <Card className="w-[300px] h-[110px]">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">Result</CardTitle>
         <CardTitle className="text-sm font-medium text-primary">
