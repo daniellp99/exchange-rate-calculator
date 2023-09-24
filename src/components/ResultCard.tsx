@@ -1,17 +1,7 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+
 import { SuccessConvertResponse } from "@/lib/exchange-schemas";
-import React from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Skeleton } from "./ui/skeleton";
-import { buttonVariants } from "./ui/button";
 
 export default function ResultCard({
   conversionResult,
